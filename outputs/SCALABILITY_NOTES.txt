@@ -1,0 +1,11 @@
+Scalability experiment (actual run, seed=558)
+===============================================
+The customer-level ML cohort has 3,317 rows. A fixed stratified test set of 830 customers
+was held constant. Models were trained on 25%, 50%, and 100% of the remaining 2,487
+training customers (621, 1,243, and 2,487 rows respectively). The same features, model
+settings, preprocessing, and test set were used at each size. See scalability_experiment.csv
+for observed wall-clock fit times and metrics.
+
+Interpret cautiously: this is a small customer-level dataset and timings are hardware- and
+load-dependent; fit time is not perfectly monotonic at these sizes. The results show how
+performance changes with training-set size but do not establish performance at large scale.

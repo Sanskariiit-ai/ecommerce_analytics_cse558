@@ -1,0 +1,8 @@
+ecommerce_analytics_cse558/
+├── src/run_analysis.py       # download, clean, EDA, hypothesis tests, ML
+├── data/                     # place Online Retail.xlsx here if auto-download fails
+├── outputs/                  # generated CSVs, JSON results and plots
+├── report/midterm_report_draft.tex
+├── requirements.txt
+├── README.md
+└── .gitignore

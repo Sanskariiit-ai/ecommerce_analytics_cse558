@@ -1,0 +1,279 @@
+%=======================================================================
+%  CSE558 Data Science - Midterm Project Report Template
+%  Monsoon 2026, IIIT-Delhi
+%
+%  How to use this template
+%   1. Set your project title in the EDIT THIS block below.
+%   2. Replace everything in LIGHT BLUE with your own text and numbers.
+%      The numbers in the example are made up for illustration.
+%   3. Grey italic lines are instructions. Delete them as you write, or
+%      hide them all at once with \showhintsfalse.
+%   4. Upload your plots to the project and put their file names in
+%      \figfile{...}{...}. Until a file exists, a labelled box is shown.
+%
+%  Sections 1-5 follow items 1-5 of the report guidelines; Section 6 is
+%  the limitations of your analysis. The link to your code (item 6) goes
+%  at the top. At most 8 pages.
+%  Compile with pdfLaTeX (Overleaf's default setting works), twice.
+%=======================================================================
+\documentclass[10pt,a4paper,twocolumn]{article}
+
+%========================= EDIT THIS =========================
+% Your project title: it sets the heading AND the PDF's title.
+\newcommand{\projecttitle}{Customer Behaviour and Repeat Purchases in Online Retail}
+\newif\ifshowhints
+\showhintsfalse      % Hide template instructions in final report
+%=============================================================
+
+%-------------------------------------------- fonts (no need to edit)
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \IfFileExists{carlito.sty}%
+    {\usepackage[sfdefault]{carlito}}%              Calibri look
+    {\usepackage[scaled=0.92]{helvet}\renewcommand{\familydefault}{\sfdefault}}%
+  \usepackage{courier}
+\else
+  \usepackage[no-math]{fontspec}
+  \setmainfont{Carlito}[Extension=.ttf, UprightFont=*-Regular, BoldFont=*-Bold,
+    ItalicFont=*-Italic, BoldItalicFont=*-BoldItalic]
+\fi
+
+%----------------------------------------------------------- packages
+\usepackage[margin=18mm,bottom=20mm,columnsep=7mm]{geometry}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{needspace}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={\projecttitle},
+            pdfsubject={CSE558 Data Science, Monsoon 2026: Midterm Project Report}}
+
+%------------------------------------------------------------- layout
+\definecolor{eg}{HTML}{7396C4}         % worked example (light blue)
+\definecolor{hintgrey}{gray}{0.58}     % instructions (light grey)
+
+\titleformat{\section}{\normalfont\large\bfseries}{\thesection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{12pt}{3pt}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{10pt}{2pt}
+\newcommand{\sectionbreak}{\needspace{10\baselineskip}}
+\newcommand{\subsectionbreak}{\needspace{10\baselineskip}}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\setlist{leftmargin=1.2em, itemsep=2pt, topsep=2pt, parsep=0pt}
+\renewcommand{\arraystretch}{1.25}
+\setlength{\tabcolsep}{4pt}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{K}[1]{>{\raggedright\arraybackslash\bfseries\boldmath}p{#1}}  % bold labels
+
+%--------------------------------------------------------- shorthands
+% Instruction line. Delete these as you fill the template in.
+\newcommand{\hint}[1]{\ifshowhints{\footnotesize\itshape\color{hintgrey}#1\par}\fi}
+% Worked example: inline or in a table cell. REPLACE the contents.
+\newcommand{\eg}[1]{\textcolor{eg}{#1}}
+% Worked example running over a whole paragraph.
+\newcommand{\egblock}[1]{{\color{eg}#1\par}}
+% Bold label followed by an example.
+\newcommand{\field}[2]{\textbf{#1}~\eg{#2}\par}
+% Part a)-c) of a test, and a small bold heading.
+\newcommand{\tpart}[2]{\par\needspace{12\baselineskip}\smallskip\textbf{#1)~#2}\par}
+\newcommand{\minihead}[1]{\par\needspace{8\baselineskip}\smallskip\textbf{#1}\par}
+% Column and file names.
+\newcommand{\code}[1]{\texttt{#1}}
+% \figfile{file}{height}: your plot, or a labelled box until the file exists.
+\newcommand{\figfile}[2]{%
+  \IfFileExists{#1}%
+    {\includegraphics[width=\linewidth,height=#2,keepaspectratio]{#1}}%
+    {\fbox{\parbox[c][#2][c]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}%
+      {\centering\small\itshape\color{hintgrey}Your plot: \detokenize{#1}}}}}
+
+%=======================================================================
+
+\begin{document}
+\twocolumn[%
+{\small\bfseries CSE558 Data Science\ \ \textbullet\ \ Midterm Project Report\ \ \textbullet\ \ Monsoon 2026\par}
+\vspace{4pt}
+{\LARGE\bfseries\raggedright\projecttitle\par}
+\vspace{6pt}\rule{\linewidth}{1pt}\vspace{4pt}
+{\small
+\begin{tabularx}{\linewidth}{@{}K{2.4cm} Y@{}}
+\toprule
+Group name & \textbf{[Enter group name]}\\
+Dataset & UCI Online Retail, DOI: 10.24432/C5BW33\\
+Code & \textbf{[Insert public repository URL after publishing]}\\
+\bottomrule
+\end{tabularx}}
+\vspace{4pt}
+{\small
+\begin{tabularx}{\linewidth}{@{}L{0.5cm} L{3.4cm} L{2.3cm} L{4.8cm} Y@{}}
+\toprule
+\textbf{\#} & \textbf{Name} & \textbf{Roll no.} & \textbf{Institute email} & \textbf{Contribution}\\
+\midrule
+1 & \textbf{[Your name]} & \textbf{[Roll no.]} & \textbf{[Institute email]} & Dataset, analysis, report and code\\
+\bottomrule
+\end{tabularx}}
+\vspace{8pt}]
+\section{Dataset}
+\field{Source:}{UCI Machine Learning Repository, Online Retail (Chen, 2015), \url{https://doi.org/10.24432/C5BW33}; CC BY 4.0.}
+\field{Raw data:}{541,909 rows and 8 original attributes; 1 December 2010--9 December 2011. Each row is an invoice product-line. The working audit adds one derived cancellation flag, so its intermediate schema has 9 columns; the prepared transaction table has additional derived fields.}
+\field{Encoded-size check:}{Country has 38 levels in the encoded-size audit. One-hot encoding replaces the Country column with 38 indicator columns while retaining the other 7 original attributes: $7+38=45$ features. Thus $541{,}909\times45=24{,}385{,}905$ encoded cells, above 3,000,000. If the derived cancellation flag is retained as a feature, there are 46 columns and $541{,}909\times46=24{,}927{,}814$ cells. Confirm the actual category count and encoded matrix shape when running the script; this arithmetic is not a substitute for the runtime shape check.}
+{\footnotesize
+\begin{tabularx}{\linewidth}{@{}L{2.0cm} L{1.7cm} L{1.4cm} Y@{}}
+\toprule
+\textbf{Feature} & \textbf{Type} & \textbf{Unit/range} & \textbf{Meaning and missingness}\\
+\midrule
+\code{InvoiceNo} & Nominal & Invoice ID & Invoice identifier; cancellation invoices often begin with C. No missingness reported in audit.\\
+\code{StockCode} & Nominal & Product ID & Product identifier. No missingness reported in audit.\\
+\code{Description} & Text & Product text & Product description; 1,454 rows missing.\\
+\code{Quantity} & Discrete & Integer units & Units on line; 10,624 rows non-positive.\\
+\code{InvoiceDate} & Datetime & 2010-12-01 to 2011-12-09 & Invoice timestamp.\\
+\code{UnitPrice} & Continuous & GBP/unit & Unit price; 2,517 rows non-positive.\\
+\code{CustomerID} & Nominal ID & Customer ID & Customer identifier; 135,080 rows missing.\\
+\code{Country} & Nominal & Country labels & Customer country; encoded as one-hot indicators for the size check.\\
+\bottomrule
+\end{tabularx}}
+\section{Data preparation}
+{\footnotesize
+\begin{tabularx}{\linewidth}{@{}L{2.1cm} L{2.8cm} Y@{}}
+\toprule
+\textbf{Issue} & \textbf{Action} & \textbf{Reason / alternative considered}\\
+\midrule
+Exact duplicate lines (5,268) & Remove exact duplicates & Prevent identical repeated records from inflating quantities and spend; retain non-identical lines.\\
+Missing CustomerID (135,080) & Exclude from customer-level analysis; keep in raw audit & Imputing IDs would fabricate customer histories and repeat-purchase labels.\\
+Missing descriptions (1,454) & Retain where other transaction fields are usable; description is not needed for customer-level target & Dropping all such rows would unnecessarily discard valid purchases.\\
+Cancellation invoices (9,288) & Exclude from positive-sale cohort using invoice cancellation flag & Returns/cancellations should not count as positive purchases; still report them in audit.\\
+Quantity $\leq0$ (10,624) & Exclude from positive-purchase analysis & Non-positive quantities represent returns/corrections rather than a positive purchase.\\
+UnitPrice $\leq0$ (2,517) & Exclude from positive-purchase analysis & Non-positive prices do not represent positive sales value.\\
+Skewed spend / outliers & Retain valid positive values; use log spend as an ML feature & High spend can be real customer behaviour. Automatic capping/deletion may erase genuine high-value customers.\\
+Categorical country & One-hot encode in ML pipeline & Avoid imposing a false numeric order on country labels; unknown test categories are ignored by encoder.\\
+\bottomrule
+\end{tabularx}}
+\section{What changed after preparation}
+{\footnotesize
+\begin{tabularx}{\linewidth}{@{}L{3.3cm} L{2.0cm} Y@{}}
+\toprule
+\textbf{Measure} & \textbf{Before} & \textbf{After}\\
+\midrule
+Rows & 541,909 raw lines & 392,692 positive-sale lines\\
+Original columns & 8 & Prepared table has derived fields; customer table has 13 fields\\
+Customers with IDs & 4,372 & 4,338 customers after filtering\\
+Distinct invoices & 25,900 raw audit & 18,532 positive-sale invoices\\
+Exact duplicates & 5,268 & 0 after exact duplicate removal\\
+Missing CustomerID & 135,080 & Excluded from customer-level table, not imputed\\
+Cancellation invoice lines & 9,288 & Excluded from positive-sale cohort\\
+Non-positive quantity lines & 10,624 & Excluded from positive-sale cohort\\
+Non-positive price lines & 2,517 & Excluded from positive-sale cohort\\
+\bottomrule
+\end{tabularx}}
+The prepared positive-sale table has 392,692 lines, 18,532 distinct invoices and 4,338 identified customers. These row counts are not additive because a row may meet more than one exclusion condition. The final customer table has one row per customer and supports inference without treating multiple invoices from one customer as independent observations.
+\section{Basic questions and problem statement}
+\begin{figure}[!ht]\figfile{../outputs/eda_purchase_frequency_exploration.png}{3.2cm}
+\caption{Purchase frequency in the exploration split is right-skewed: many customers have one invoice, with a long tail of repeat buyers.}\end{figure}
+\begin{figure}[!ht]\figfile{../outputs/eda_spend_repeat_exploration.png}{3.2cm}
+\caption{Exploration-split repeat customers show a broader total-spend distribution; display is capped at the exploration 99th percentile for readability.}\end{figure}
+\begin{figure}[!ht]\figfile{../outputs/eda_monthly_invoices_exploration.png}{3.2cm}
+\caption{Monthly invoice volume among exploration customers varies over time; December 2011 is incomplete because records end on 9 December.}\end{figure}
+\minihead{Split before exploration}
+Customer-level data were split 80/20 with stratification on observed repeat-customer status and seed 558: exploration $n=3,470$ and confirmation $n=868$. EDA figures above use exploration customers only. The three tests below were run on the held-out confirmation customers; the median first-invoice threshold was set from the exploration split only (£300.655).
+\minihead{Obvious questions}
+\begin{enumerate}
+\item How many customers buy once versus repeatedly?
+\item Which customers spend the most over the observed period?
+\item How does purchase activity vary by month?
+\end{enumerate}
+\minihead{Problem statements}
+\noindent\fbox{\begin{minipage}{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}
+\textbf{P1 (primary).} Is the probability of repeat purchasing different for customers whose first invoice value is above the exploration-set median compared with those at or below it?
+
+\smallskip
+\textbf{P2.} Does customer-level mean invoice value differ between repeat and one-time customers?
+
+\smallskip
+\textbf{P3.} Does repeat-purchase probability differ between UK and non-UK customers?
+\end{minipage}}
+\field{Novelty:}{The obvious questions describe historical volume and spend. These statements test pre-specified customer-level contrasts in a held-out confirmation sample, use a future-relevant retention outcome for P1, and explicitly avoid counting each invoice as an independent customer. They remain observational associations, not causal claims.}
+\section{Statistical inferences}
+All tests use the confirmation set (868 customers), two-sided alternatives, and $\alpha=0.05$. Practical thresholds below are chosen for interpretation in this report and were not preregistered; therefore practical-significance conclusions are exploratory. For two proportions, the minimum practically meaningful difference is 5 percentage points. For average invoice value, it is £50 per customer.
+\subsection*{Test 1 (primary): first-invoice spend and repeat purchasing}
+\tpart{a}{Hypotheses and method}
+\begin{tabularx}{\linewidth}{@{}K{3.2cm} Y@{}}
+\toprule
+$H_0$ & $p_{\mathrm{above}}-p_{\mathrm{at/below}}=0$\\
+$H_1$ & $p_{\mathrm{above}}-p_{\mathrm{at/below}}\ne0$\\
+Significance & $\alpha=0.05$; two-sided\\
+Test & Two-proportion z-test\\
+Practical threshold & 5 percentage points\\
+\bottomrule
+\end{tabularx}
+The test compares independent customers in the two first-invoice groups. A two-proportion z-test is suitable for the difference in proportions at these sample sizes.
+\tpart{b}{Other tests considered}
+A chi-square test of independence on the corresponding $2\times2$ table is asymptotically equivalent and would give the same two-sided conclusion. Fisher's exact test avoids the large-sample approximation but is not necessary with these counts. A one-sided test was not used because the question allows either direction.
+\tpart{c}{Result}
+Above-median group: 290/424 = 68.40\%; at/below-median: 279/444 = 62.84\%. Difference = 5.56 percentage points; 95\% CI [-0.75, 11.87] percentage points; $z=1.723$, degrees of freedom: not applicable for a z-test, $p=0.085$. Fail to reject $H_0$. The point estimate is just above the 5-point practical threshold, but the interval includes zero and values below the threshold; evidence is inconclusive.
+\subsection*{Test 2: customer-level average invoice value by repeat status}
+\tpart{a}{Hypotheses and method}
+\begin{tabularx}{\linewidth}{@{}K{3.2cm} Y@{}}
+\toprule
+$H_0$ & $\mu_{\mathrm{repeat}}-\mu_{\mathrm{one-time}}=0$\\
+$H_1$ & $\mu_{\mathrm{repeat}}-\mu_{\mathrm{one-time}}\ne0$\\
+Significance & $\alpha=0.05$; two-sided\\
+Test & Welch two-sample t-test\\
+Practical threshold & £50 per customer\\
+\bottomrule
+\end{tabularx}
+Each customer contributes one average invoice value. Welch's test does not require equal population variances.
+\tpart{b}{Other tests considered}
+The pooled t-test assumes equal variances; we avoid that assumption. A Mann--Whitney test compares ranks/distributions, not specifically means. A bootstrap confidence interval would be a useful robustness check for the skewed values. A test on invoice-level rows was rejected because repeat customers contribute multiple invoices, creating pseudoreplication.
+\tpart{c}{Result}
+Repeat customers: mean £398.95 ($n=569$); one-time customers: £384.08 ($n=299$). Difference = £14.88; 95\% CI [-£54.48, £84.23]; $t=0.421$, $df=530.68$, $p=0.674$. Fail to reject $H_0$. The point estimate is below £50, but the interval includes differences larger than the practical threshold in either direction; the data do not establish equivalence.
+\subsection*{Test 3: UK versus non-UK repeat-purchase rates}
+\tpart{a}{Hypotheses and method}
+\begin{tabularx}{\linewidth}{@{}K{3.2cm} Y@{}}
+\toprule
+$H_0$ & $p_{\mathrm{UK}}-p_{\mathrm{nonUK}}=0$\\
+$H_1$ & $p_{\mathrm{UK}}-p_{\mathrm{nonUK}}\ne0$\\
+Significance & $\alpha=0.05$; two-sided\\
+Test & Two-proportion z-test\\
+Practical threshold & 5 percentage points\\
+\bottomrule
+\end{tabularx}
+\tpart{b}{Other tests considered}
+A chi-square test of independence is asymptotically equivalent. Fisher's exact test is a possible small-cell alternative, although the non-UK group has 95 customers and observed success/failure counts are adequate for the normal approximation. A logistic regression adjusted for country/customer covariates could address confounding but answers a different, adjusted question.
+\tpart{c}{Result}
+UK repeat rate: 508/773 = 65.72\%; non-UK: 61/95 = 64.21\%. Difference = 1.51 percentage points; 95\% CI [-8.70, 11.71] percentage points; $z=0.292$, degrees of freedom: not applicable for a z-test, $p=0.770$. Fail to reject $H_0$. The interval is wide and does not rule out practically meaningful differences.
+\section{Scalable machine learning}
+The ML target is whether a customer with purchase history before 1 September 2011 purchases during the next 90 days. Features are calculated only from the history period. The cohort contains 3,317 customers; 1,864 (56.2\%) have a positive label. On a fixed 830-customer test set, training size was varied across 621, 1,243 and 2,487 customers using the same seed, preprocessing and model settings.
+{\footnotesize
+\begin{tabularx}{\linewidth}{@{}L{2.7cm} r r r r@{}}
+\toprule
+\textbf{Model} & \textbf{Train n} & \textbf{F1} & \textbf{ROC-AUC} & \textbf{Fit (s)}\\
+\midrule
+Logistic regression & 621 & 0.671 & 0.718 & 0.016\\
+Logistic regression & 1,243 & 0.686 & 0.726 & 0.016\\
+Logistic regression & 2,487 & 0.693 & 0.732 & 0.027\\
+Shallow tree & 621 & 0.636 & 0.701 & 0.009\\
+Shallow tree & 1,243 & 0.667 & 0.717 & 0.032\\
+Shallow tree & 2,487 & 0.623 & 0.727 & 0.039\\
+\bottomrule
+\end{tabularx}}
+Logistic regression achieves the best full-sample F1 and ROC-AUC. Tree performance is not monotonic with training size. Fit times are machine-specific and this small customer-level dataset does not prove large-scale scalability; the experiment is a controlled sample-size comparison. The evaluation split is stratified randomly within a temporal cohort, not a pure later-period holdout, which limits deployment claims.
+\section{Limitations}
+\begin{itemize}
+\item \textbf{Coverage.} One UK retailer over roughly one year; December 2011 is incomplete.
+\item \textbf{Missing customer IDs.} 135,080 raw rows cannot be reliably linked to customer histories and are excluded from customer-level analyses.
+\item \textbf{Practical thresholds.} Thresholds were selected for interpretation in this report, not preregistered before analysis.
+\item \textbf{Association, not causation.} Spending, geography and repeat status may be related to unobserved customer characteristics.
+\item \textbf{Encoding verification.} The size arithmetic uses 38 observed Country levels from the prior audit; the exact encoded matrix shape must be verified by running the included script on the original raw file.
+\item \textbf{Submission metadata.} Add the actual group name, name, roll number, institute email and public code URL before submission.
+\end{itemize}
+\end{document}

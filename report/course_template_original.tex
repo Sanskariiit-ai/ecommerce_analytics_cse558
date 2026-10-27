@@ -1,0 +1,428 @@
+%=======================================================================
+%  CSE558 Data Science - Midterm Project Report Template
+%  Monsoon 2026, IIIT-Delhi
+%
+%  How to use this template
+%   1. Set your project title in the EDIT THIS block below.
+%   2. Replace everything in LIGHT BLUE with your own text and numbers.
+%      The numbers in the example are made up for illustration.
+%   3. Grey italic lines are instructions. Delete them as you write, or
+%      hide them all at once with \showhintsfalse.
+%   4. Upload your plots to the project and put their file names in
+%      \figfile{...}{...}. Until a file exists, a labelled box is shown.
+%
+%  Sections 1-5 follow items 1-5 of the report guidelines; Section 6 is
+%  the limitations of your analysis. The link to your code (item 6) goes
+%  at the top. At most 8 pages.
+%  Compile with pdfLaTeX (Overleaf's default setting works), twice.
+%=======================================================================
+\documentclass[10pt,a4paper,twocolumn]{article}
+
+%========================= EDIT THIS =========================
+% Your project title: it sets the heading AND the PDF's title.
+\newcommand{\projecttitle}{Do crowded neighbourhoods drag ratings down?
+  Evidence from Bengaluru restaurant listings}
+\newif\ifshowhints
+\showhintstrue      % \showhintsfalse hides every grey instruction line
+%=============================================================
+
+%-------------------------------------------- fonts (no need to edit)
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \IfFileExists{carlito.sty}%
+    {\usepackage[sfdefault]{carlito}}%              Calibri look
+    {\usepackage[scaled=0.92]{helvet}\renewcommand{\familydefault}{\sfdefault}}%
+  \usepackage{courier}
+\else
+  \usepackage[no-math]{fontspec}
+  \setmainfont{Carlito}[Extension=.ttf, UprightFont=*-Regular, BoldFont=*-Bold,
+    ItalicFont=*-Italic, BoldItalicFont=*-BoldItalic]
+\fi
+
+%----------------------------------------------------------- packages
+\usepackage[margin=18mm,bottom=20mm,columnsep=7mm]{geometry}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{needspace}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={\projecttitle},
+            pdfsubject={CSE558 Data Science, Monsoon 2026: Midterm Project Report}}
+
+%------------------------------------------------------------- layout
+\definecolor{eg}{HTML}{7396C4}         % worked example (light blue)
+\definecolor{hintgrey}{gray}{0.58}     % instructions (light grey)
+
+\titleformat{\section}{\normalfont\large\bfseries}{\thesection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{12pt}{3pt}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{10pt}{2pt}
+\newcommand{\sectionbreak}{\needspace{10\baselineskip}}
+\newcommand{\subsectionbreak}{\needspace{10\baselineskip}}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\setlist{leftmargin=1.2em, itemsep=2pt, topsep=2pt, parsep=0pt}
+\renewcommand{\arraystretch}{1.25}
+\setlength{\tabcolsep}{4pt}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{K}[1]{>{\raggedright\arraybackslash\bfseries\boldmath}p{#1}}  % bold labels
+
+%--------------------------------------------------------- shorthands
+% Instruction line. Delete these as you fill the template in.
+\newcommand{\hint}[1]{\ifshowhints{\footnotesize\itshape\color{hintgrey}#1\par}\fi}
+% Worked example: inline or in a table cell. REPLACE the contents.
+\newcommand{\eg}[1]{\textcolor{eg}{#1}}
+% Worked example running over a whole paragraph.
+\newcommand{\egblock}[1]{{\color{eg}#1\par}}
+% Bold label followed by an example.
+\newcommand{\field}[2]{\textbf{#1}~\eg{#2}\par}
+% Part a)-c) of a test, and a small bold heading.
+\newcommand{\tpart}[2]{\par\needspace{12\baselineskip}\smallskip\textbf{#1)~#2}\par}
+\newcommand{\minihead}[1]{\par\needspace{8\baselineskip}\smallskip\textbf{#1}\par}
+% Column and file names.
+\newcommand{\code}[1]{\texttt{#1}}
+% \figfile{file}{height}: your plot, or a labelled box until the file exists.
+\newcommand{\figfile}[2]{%
+  \IfFileExists{#1}%
+    {\includegraphics[width=\linewidth,height=#2,keepaspectratio]{#1}}%
+    {\fbox{\parbox[c][#2][c]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}%
+      {\centering\small\itshape\color{hintgrey}Your plot: \detokenize{#1}}}}}
+
+%=======================================================================
+\begin{document}
+
+\twocolumn[%
+{\small\bfseries CSE558 Data Science\ \ \textbullet\ \ Midterm Project Report\ \ \textbullet\ \ Monsoon 2026\par}
+\vspace{4pt}
+{\LARGE\bfseries\raggedright\projecttitle\par}
+\vspace{6pt}
+\rule{\linewidth}{1pt}
+
+\hint{Everything in light blue is a worked example: replace it with your own. Its numbers are
+made up for illustration. Grey italic lines are instructions: delete them, or hide them all with
+\texttt{\textbackslash showhintsfalse} at the top of the file, where you also set your project
+title. Sections 1--5 follow items 1--5 of the report guidelines; Section 6 is the limitations of
+your analysis. At most 8 pages.}
+
+{\small
+\begin{tabularx}{\linewidth}{@{}K{2.4cm} Y@{}}
+\toprule
+Group name & \eg{Team Kurtosis} \\
+Dataset & \eg{kaggle.com/datasets/himanshupoddar/zomato-bangalore-restaurants} \\
+Code & \eg{github.com/team-kurtosis/cse558-midterm (notebook and README)} \\
+\bottomrule
+\end{tabularx}}
+
+\hint{Code: a link to the code written by you and a readme file, which anyone with the link can
+open. Also upload your notebook or script on the classroom.}
+
+\vspace{2pt}
+{\small
+\begin{tabularx}{\linewidth}{@{}L{0.5cm} L{3.4cm} L{2.3cm} L{4.8cm} Y@{}}
+\toprule
+\textbf{\#} & \textbf{Name} & \textbf{Roll no.} & \textbf{Institute email} & \textbf{Contribution} \\
+\midrule
+1 & \eg{Aditi Rao} & \eg{2022145} & \eg{aditi22145@iiitd.ac.in} & \eg{Dataset and size check (1)} \\
+2 & \eg{Rohan Mehta} & \eg{2022311} & \eg{rohan22311@iiitd.ac.in} & \eg{Preparation, before and after (2, 3)} \\
+3 & \eg{Sneha Iyer} & \eg{2022078} & \eg{sneha22078@iiitd.ac.in} & \eg{EDA and problem statements (4)} \\
+4 & \eg{Karan Bose} & \eg{2022260} & \eg{karan22260@iiitd.ac.in} & \eg{Test 1 (5)} \\
+5 & \eg{Meera Nair} & \eg{2022019} & \eg{meera22019@iiitd.ac.in} & \eg{Test 2, limitations, code and README (5, 6)} \\
+\bottomrule
+\end{tabularx}}
+\vspace{12pt}
+]
+
+%-----------------------------------------------------------------------
+\section{Dataset}
+\hint{Where you have collected the dataset, how many rows and columns there are, and whether
+\#instances $\times$ \#attributes is at least 3M after encoding (show the arithmetic). Name some
+features with their interpretation to the real world.}
+
+\field{Source:}{Kaggle, ``Zomato Bangalore Restaurants'': scraped restaurant listings,
+downloaded on 28 August 2026. One row is one outlet.}
+
+\field{What is raw about it:}{ratings are stored as text (\code{"4.1/5"}, \code{"NEW"},
+\code{"-"}); the cost for two is a string with thousands separators; \code{dish\_liked} is a
+comma-separated list; some chain outlets are listed twice; 15\% of ratings are missing or
+\code{NEW}.}
+
+{\small
+\begin{tabularx}{\linewidth}{@{}L{3.0cm} Y Y@{}}
+\toprule
+ & \textbf{Raw file} & \textbf{After encoding} \\
+\midrule
+Instances (rows) & \eg{51{,}717} & \eg{48{,}304} \\
+Attributes (columns) & \eg{17} & \eg{96} \\
+Instances $\times$ attributes & \eg{879{,}189} & \eg{4{,}637{,}184} \\
+\bottomrule
+\end{tabularx}}
+
+\field{Size check:}{$48{,}304\times96=4{,}637{,}184\ge3{,}000{,}000$, so the requirement is met.
+One-hot encoding of \code{location} and \code{cuisines} is what takes it past 3M.}
+
+\minihead{Key features}
+\hint{Some key features, with their type (nominal, discrete or continuous) and real-world
+meaning. Include the response variable, if there is one.}
+{\footnotesize
+\begin{tabularx}{\linewidth}{@{}L{2.2cm} L{1.5cm} Y@{}}
+\toprule
+\textbf{Feature} & \textbf{Type} & \textbf{Real-world meaning} \\
+\midrule
+\eg{\code{rate}} & \eg{continuous} & \eg{mean customer rating out of 5; our response} \\
+\eg{\code{votes}} & \eg{discrete} & \eg{number of reviews behind the rating} \\
+\eg{\code{location}} & \eg{nominal} & \eg{Bengaluru neighbourhood, 93 levels} \\
+\eg{\code{cuisines}} & \eg{nominal} & \eg{cuisine tags, several per outlet} \\
+\eg{\code{cost\_two}} & \eg{continuous} & \eg{typical bill for two, in rupees} \\
+\eg{\code{online\_order}} & \eg{nominal} & \eg{takes online orders (yes/no)} \\
+\eg{\code{book\_table}} & \eg{nominal} & \eg{takes table bookings (yes/no)} \\
+\bottomrule
+\end{tabularx}}
+
+%-----------------------------------------------------------------------
+\section{Data preparation}
+\hint{How did you prepare your data (encoding, outliers, missing values, duplicates), and why do
+you follow such steps? One row per step; the ``why'' matters most.}
+
+{\footnotesize
+\begin{tabularx}{\linewidth}{@{}L{1.9cm} L{2.3cm} Y@{}}
+\toprule
+\textbf{Issue found} & \textbf{What we did} & \textbf{Why, and not the alternative} \\
+\midrule
+\eg{\code{rate} is text, with \code{NEW} and \code{-}}
+ & \eg{parsed to a number; 3{,}359 \code{NEW} rows dropped; \code{-} set to missing}
+ & \eg{\code{NEW} means not yet rated, not rated zero. Coding it as 0 would invent a group of
+   very bad restaurants.} \\
+\eg{4{,}399 ratings still missing}
+ & \eg{filled with the median rating of the same location, and flagged as imputed}
+ & \eg{keeps the rows for later modelling; the flag lets our tests in Section 5 leave the
+   filled-in values out} \\
+\eg{54 duplicate chain rows}
+ & \eg{dropped on (name, address)}
+ & \eg{an outlet listed twice would inflate exactly the crowded areas we study} \\
+\eg{\code{cost\_two} stored as ``1,200''}
+ & \eg{separators removed, converted to a number}
+ & \eg{a format fix; nothing is lost} \\
+\eg{612 costs above the IQR fence}
+ & \eg{capped at the fence ($Q_3+1.5\,\mathrm{IQR}$)}
+ & \eg{they are real luxury outlets, so we keep the rows but stop them dominating means} \\
+\eg{\code{location} has 93 levels}
+ & \eg{one-hot encoded; 5 levels with under 30 rows merged into \code{Other}}
+ & \eg{rare levels give unstable estimates; merging keeps every crowded area intact} \\
+\bottomrule
+\end{tabularx}}
+
+%-----------------------------------------------------------------------
+\section{What changed after preparation}
+\hint{What are the changes you got after data preparation? Give before-and-after observations.}
+
+{\footnotesize
+\begin{tabularx}{\linewidth}{@{}L{2.9cm} L{1.5cm} Y@{}}
+\toprule
+\textbf{Measure} & \textbf{Before} & \textbf{After} \\
+\midrule
+Rows & \eg{51{,}717} & \eg{48{,}304} \\
+Attributes & \eg{17} & \eg{96} \\
+Missing or unusable ratings & \eg{7{,}758 (15.0\%)} & \eg{0: 3{,}359 dropped, 4{,}399 imputed and flagged} \\
+Duplicate rows & \eg{54} & \eg{0} \\
+\code{cost\_two} above the IQR fence & \eg{612} & \eg{0 (capped at the fence)} \\
+\bottomrule
+\end{tabularx}}
+
+\egblock{Parsing \code{rate} turned the response from text into a number, which is what makes
+any test possible. Encoding \code{location} and \code{cuisines} took the attributes from 17 to
+96, past the size requirement. We lost 3{,}413 rows: 3{,}359 unrated new listings and 54
+duplicates.}
+
+%-----------------------------------------------------------------------
+\section{Basic questions and problem statement}
+\hint{What are your basic questions about your data, and how is your problem statement novel
+from them? Show a few EDA plots, each with a one-line takeaway.}
+
+\begin{figure}[!ht]
+  \figfile{fig_ratings.pdf}{3.6cm}
+  \caption{\eg{Ratings bunch between 3.5 and 4.2 and trail off to the left (skewness $-0.7$);
+  31\% of outlets reach 4.0.}}
+\end{figure}
+
+\begin{figure}[!ht]
+  \figfile{fig_density.pdf}{3.6cm}
+  \caption{\eg{Outlets per neighbourhood run from 32 to 3{,}660, so a few areas would dominate
+  a straight-line fit on density.}}
+\end{figure}
+
+\minihead{Basic questions}
+\begin{enumerate}[label=\arabic*.]
+  \item \eg{Do costlier restaurants get higher ratings?}
+  \item \eg{Which cuisine has the best average rating?}
+  \item \eg{Do outlets with more votes have higher ratings?}
+\end{enumerate}
+
+\minihead{Our problem statements}
+\hint{One or two sentences each, specific to your features, and phrased so each could come out
+either way. Mark one as primary.}
+
+\noindent\fbox{\begin{minipage}{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}
+\textbf{P1 (primary).} \eg{Among restaurants with comparable cost and cuisine, does rating fall
+as the number of competing outlets in the same neighbourhood rises?}
+
+\smallskip
+\textbf{P2.} \eg{Within the most crowded neighbourhoods, do outlets that take online orders rate
+higher than those that do not?}
+\end{minipage}}
+
+\field{How they are novel:}{the basic questions look at each outlet on its own. Ours depend on
+the neighbourhood an outlet competes in, which no single row records, so they need a derived
+feature (outlets per neighbourhood) and a like-for-like comparison.}
+
+%-----------------------------------------------------------------------
+\section{Statistical inferences}
+\hint{Conduct 2--3 hypothesis tests on your problem statement(s), each with parts a)--c) below.
+Know your tests and the reason for using them, and compare them with other tests.}
+
+\field{Rows tested:}{the 43{,}905 outlets with an observed rating; the 4{,}399 imputed ratings
+are left out. Comparable outlets, North Indian at INR 400--800 for two: 7{,}877. We rank them by
+the number of outlets in their neighbourhood and cut them into thirds at neighbourhood
+boundaries: the most crowded third $D$ (2{,}805 outlets in 9 neighbourhoods), a middle third
+(not used) and the least crowded third $S$ (2{,}496 outlets in 51 neighbourhoods).}
+
+%------------------------------------------------------------ Test 1
+\subsection*{Test 1 (P1): do comparable outlets rate lower in the most crowded neighbourhoods?}
+
+\tpart{a}{Hypotheses, written before running the test}
+\hint{Before running the test, write the null and alternative hypotheses ($H_0$ carries the
+equality), the significance level, one- or two-sided, the test you will use, and the smallest
+difference that would matter in the real world.}
+{\small
+\begin{tabularx}{\linewidth}{@{}K{3.4cm} Y@{}}
+\toprule
+$H_0$ & \eg{$\mu_D-\mu_S\ge0$} \\
+$H_1$ & \eg{$\mu_D-\mu_S<0$} \\
+Significance level & \eg{$\alpha=0.05$} \\
+Side & \eg{one-sided (left)} \\
+Test & \eg{Welch t-test} \\
+Smallest difference that matters & \eg{0.10 star} \\
+\bottomrule
+\end{tabularx}}
+
+\egblock{$\mu_D$, $\mu_S$: mean rating of comparable outlets in the most and least crowded
+thirds. One-sided, because P1 claims that ratings fall. 0.10 star, because Zomato shows ratings
+to one decimal: a smaller gap is invisible to a diner.}
+
+\tpart{b}{Other tests we considered}
+\hint{Which other tests did you consider, and why did you not use them? Say first why your test
+fits your data.}
+\egblock{Two independent groups, a continuous response and an unknown $\sigma$ call for a
+two-sample t-test. We use Welch's version because it does not assume equal spreads.}
+{\footnotesize
+\begin{tabularx}{\linewidth}{@{}L{2.4cm} Y@{}}
+\toprule
+\textbf{Also considered} & \textbf{Why we did not use it} \\
+\midrule
+\eg{Two-sample z-test} & \eg{needs the population $\sigma$; we only have sample spreads} \\
+\eg{Pooled t-test} & \eg{assumes equal variances, which an F-test rejects ($F=1.31$, $p<0.001$). Run anyway, it gives $t=-4.96$ and the same decision.} \\
+\eg{Paired t-test} & \eg{nothing to pair: each outlet is in one group} \\
+\eg{t-test on the correlation $r$} & \eg{sees only a straight-line trend, which Figure 2 shows a few large areas would drive} \\
+\bottomrule
+\end{tabularx}}
+
+\tpart{c}{Result}
+\hint{Report the test statistic, degrees of freedom, p-value and decision, and the estimate with
+a 95\% confidence interval. Is the difference large enough to matter?}
+{\small
+\begin{tabularx}{\linewidth}{@{}K{3.4cm} Y@{}}
+\toprule
+Estimate & \eg{$-0.06$ star (3.68 in $D$, 3.74 in $S$)} \\
+95\% confidence interval & \eg{$-0.084$ to $-0.036$} \\
+Test statistic (d.f.) & \eg{$t=-4.92$ (4{,}984)} \\
+p-value & \eg{$4.4\times10^{-7}$} \\
+Decision & \eg{reject $H_0$} \\
+\bottomrule
+\end{tabularx}}
+
+\egblock{Comparable outlets in the most crowded neighbourhoods rate 0.06 star lower on average.
+The difference is real, but it does not matter by our standard: the whole interval lies inside
+$\pm0.10$ star.}
+
+%------------------------------------------------------------ Test 2
+\subsection*{Test 2 (P2): does online ordering lift ratings in the most crowded neighbourhoods?}
+\hint{The same three parts as Test 1.}
+
+\tpart{a}{Hypotheses, written before running the test}
+{\small
+\begin{tabularx}{\linewidth}{@{}K{3.4cm} Y@{}}
+\toprule
+$H_0$ & \eg{$\mu_{\text{on}}-\mu_{\text{off}}\le0$} \\
+$H_1$ & \eg{$\mu_{\text{on}}-\mu_{\text{off}}>0$} \\
+Significance level & \eg{$\alpha=0.05$} \\
+Side & \eg{one-sided (right)} \\
+Test & \eg{Welch t-test} \\
+Smallest difference that matters & \eg{0.10 star} \\
+\bottomrule
+\end{tabularx}}
+
+\egblock{$\mu_{\text{on}}$, $\mu_{\text{off}}$: mean rating, within $D$, of outlets that do and
+do not take online orders. One-sided, because P2 claims a lift.}
+
+\tpart{b}{Other tests we considered}
+\egblock{Again two independent groups, a continuous response and an unknown $\sigma$, so a
+two-sample t-test; we fixed Welch's version in advance.}
+{\footnotesize
+\begin{tabularx}{\linewidth}{@{}L{2.4cm} Y@{}}
+\toprule
+\textbf{Also considered} & \textbf{Why we did not use it} \\
+\midrule
+\eg{Two-sample z-test} & \eg{needs the population $\sigma$; we only have sample spreads} \\
+\eg{Pooled t-test} & \eg{also valid here, since an F-test does not reject equal variances ($F=1.10$, $p=0.08$); it gives $t=1.25$ and the same decision. We keep Welch, fixed in advance.} \\
+\eg{Paired t-test} & \eg{no outlet is in both groups} \\
+\bottomrule
+\end{tabularx}}
+
+\tpart{c}{Result}
+{\small
+\begin{tabularx}{\linewidth}{@{}K{3.4cm} Y@{}}
+\toprule
+Estimate & \eg{$+0.02$ star (3.69 with online orders, 3.67 without)} \\
+95\% confidence interval & \eg{$-0.012$ to $+0.052$} \\
+Test statistic (d.f.) & \eg{$t=1.24$ (2{,}086)} \\
+p-value & \eg{0.11} \\
+Decision & \eg{fail to reject $H_0$} \\
+\bottomrule
+\end{tabularx}}
+
+\egblock{Our data gives no evidence that taking online orders lifts ratings in crowded
+neighbourhoods. The interval rules out a lift larger than 0.052 star, so any lift is below the
+0.10 star that would matter.}
+
+\hint{Running a third test? Add it here as Test 3, with the same three parts: copy the Test 2
+block.}
+
+%-----------------------------------------------------------------------
+\section{Limitations}
+\hint{What your analysis cannot show, and why: rows you dropped, assumptions that hold only
+approximately, groups your conclusions do not cover, and association versus cause.}
+
+\begin{itemize}
+  \item \eg{\textbf{Association, not cause.} Crowded neighbourhoods also differ in rent, footfall
+  and customers; our tests cannot separate density from these.}
+  \item \eg{\textbf{Outlets are not fully independent.} Outlets in one neighbourhood share
+  conditions, so our effective sample is smaller than 5{,}301 and our p-values are optimistic.
+  A test on the 60 neighbourhood averages would be stricter.}
+  \item \eg{\textbf{Established outlets only.} The 3{,}359 unrated new listings were dropped in
+  Section 2.}
+  \item \eg{\textbf{Imputed ratings left out.} The 4{,}399 outlets with a missing rating may
+  differ from the rest, and they are not in our tests.}
+  \item \eg{\textbf{One cuisine and price band.} We compared North Indian outlets at INR
+  400--800 for two; other cuisines and prices may behave differently.}
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,70 @@
+\documentclass[10pt,a4paper,twocolumn]{article}
+\usepackage[margin=16mm,bottom=17mm,columnsep=6mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,amsmath,booktabs,tabularx,graphicx,hyperref,enumitem}
+\setlength{\parindent}{0pt}\setlength{\parskip}{3pt}
+\title{Customer Behaviour and Repeat Purchases in Online Retail}
+\author{CSE558 Data Science\\[2pt]\small [Enter name, roll number, group name]}
+\date{Monsoon 2026}
+\begin{document}
+\maketitle
+\textbf{Dataset:} UCI Online Retail, \url{https://archive.ics.uci.edu/dataset/352/online+retail}\\
+\textbf{Code:} [Insert public repository URL after publishing]
+
+\begin{abstract}
+We study customer repeat purchasing using transaction records from a UK-based online retailer. We aggregate item lines into invoices and customers, test whether repeat-purchase rates vary with first-invoice spending and customer country, and compare lightweight models predicting a purchase in a future 90-day window. The analysis is observational and does not establish causal effects.
+\end{abstract}
+
+\section{Dataset and size requirement}
+The workbook covers 1 December 2010 to 9 December 2011. Each row is a product line on an invoice. Main variables include invoice number, stock code, quantity, invoice date, unit price, customer ID and country. The imported workbook has 541,909 rows and 8 original columns. The audit code adds a cancellation flag, explaining why its intermediate audit count is 9 columns.
+
+Raw size: \(541{,}909\times8=4{,}335{,}272\) cells. For an illustrative one-hot encoding of Country with 38 levels, retaining the other seven attributes gives \(7+38=45\) columns and \(541{,}909\times45=24{,}385{,}905\) cells. Verify the number of levels and final shape in the run environment. The customer-level modelling table is smaller because transaction lines are aggregated.
+
+\section{Preparation and before/after}
+The raw file has 541,909 rows. Audit results: 135,080 rows lack CustomerID, 1,454 lack descriptions, 5,268 are exact duplicates, 9,288 are cancellation invoice rows, 10,624 have non-positive quantity, and 2,517 have non-positive unit price. After duplicate removal and filtering to identified customers, valid dates, non-cancellation invoices, positive quantities and prices, 392,692 sale-line rows remain, covering 4,338 customers and 18,532 invoices.
+
+Missing CustomerIDs are not imputed because synthetic identifiers would fabricate customer histories. Exact duplicates are removed. Cancellation and non-positive rows are excluded from positive-purchase analyses but counted in the audit. Line value is quantity times unit price. Product lines are aggregated into distinct invoices so a multi-item invoice counts as one purchase. Valid spending outliers are not automatically capped.
+
+\section{EDA and research questions}
+Figure~\ref{fig:freq} shows a strongly right-skewed distribution of purchase frequency. Figure~\ref{fig:spend} shows wider total-spend variation among repeat customers. Monthly invoice volume peaks in November; December is partial. The ML cohort contains 3,317 customers and 1,864 future-purchase positives (56.2\%).
+
+\begin{figure}[!ht]\centering\includegraphics[width=\linewidth]{../outputs/purchase_frequency.png}\caption{Customer invoice counts are right-skewed; many customers buy once.}\label{fig:freq}\end{figure}
+\begin{figure}[!ht]\centering\includegraphics[width=\linewidth]{../outputs/spend_by_repeat.png}\caption{Repeat customers have a wider and generally higher total-spend distribution; display capped at the 99th percentile.}\label{fig:spend}\end{figure}
+\begin{figure}[!ht]\centering\includegraphics[width=\linewidth]{../outputs/monthly_invoices.png}\caption{Monthly invoice activity peaks in November 2011; December is incomplete.}\end{figure}
+\begin{figure}[!ht]\centering\includegraphics[width=\linewidth]{../outputs/ml_target_balance.png}\caption{The future-purchase target has more positive than negative labels.}\end{figure}
+
+Primary question: Is repeat-purchase probability different for customers whose first invoice value is above the median versus at or below the median? This examines initial purchase behaviour in relation to later purchasing, rather than simply summarising product popularity. Secondary questions compare customer-level average invoice value by repeat status and repeat rates for UK versus non-UK customers.
+
+\section{Statistical inference}
+All tests use \(\alpha=0.05\), two-sided alternatives. For two proportions, the two-proportion z-test is used; a chi-square test is closely related, while Fisher's exact test is useful with small expected counts. For means, Welch's t-test avoids assuming equal variances; a pooled t-test assumes equal variances and Mann--Whitney compares ranks/distributions rather than means.
+
+\subsection{Test 1 (primary)}
+\(H_0:p_{\rm high}=p_{\rm low}\); \(H_1:p_{\rm high}\ne p_{\rm low}\). Repeat-purchase rate was 69.39\% above the median first-invoice value and 61.78\% at/below it. Difference: 7.61 percentage points; 95\% CI [4.79, 10.43] points; \(z=5.273\), \(p=1.34\times10^{-7}\). Reject \(H_0\). This is an association, not evidence that spending more causes retention.
+
+\subsection{Test 2}
+\(H_0:\mu_{\rm repeat}=\mu_{\rm one-time}\); \(H_1:\mu_{\rm repeat}\ne\mu_{\rm one-time}\). To avoid treating repeated invoices from one person as independent, each customer contributes one average invoice-value summary. Repeat customers: mean \pounds421.00 (\(n=2{,}845\)); one-time customers: \pounds411.25 (\(n=1{,}493\)). Difference \pounds9.76; 95\% CI [\pounds-110.14, \pounds129.66]; Welch \(t=0.160\), \(df\approx2551.6\), \(p=0.873\). Fail to reject \(H_0\). The wide interval does not support a precise difference in average invoice value.
+
+\subsection{Test 3}
+\(H_0:p_{\rm UK}=p_{\rm nonUK}\); \(H_1:p_{\rm UK}\ne p_{\rm nonUK}\). UK repeat rate: 65.56\% (\(n=3{,}920\)); non-UK: 65.79\% (\(n=418\)). Difference \(-0.23\) percentage points; 95\% CI [\(-5.01\), \(4.56\)] points; \(z=-0.093\), \(p=0.926\). Fail to reject \(H_0\). The non-UK group combines heterogeneous countries.
+
+\section{Machine learning and scalable training}
+Predict whether a customer with purchase history before 1 September 2011 makes a purchase in the following 90 days. Features are calculated only from the history window. The cohort contains 3,317 customers; 56.2\% are positive. The current run used a stratified random customer-level holdout within the temporal cohort; a future evaluation should reserve a later chronological block to better simulate deployment.
+
+\begin{center}\small
+\begin{tabular}{lrrrrr}
+\toprule
+Model & Acc. & Prec. & Recall & F1 & AUC\\
+\midrule
+Logistic regression & .677 & .743 & .650 & .693 & .732\\
+Shallow tree & .654 & .803 & .509 & .623 & .727\\
+\bottomrule
+\end{tabular}
+\end{center}
+Logistic regression has higher F1 and ROC-AUC in this split; the shallow tree has higher precision and slightly shorter fit time (0.011 s vs 0.018 s). These tiny, hardware-dependent timings do not alone demonstrate scalability. For a stronger scale experiment, fit the same models on fixed 25\%, 50\% and 100\% samples of the customer table and report sample sizes, runtime and metrics.
+
+\section{Limitations and conclusion}
+The data cover one retailer and about one year, with an incomplete final month. Missing customer IDs prevent customer-level tracking for some transactions. The 90-day label is a modelling choice, and findings may not generalise to other retailers. Observational associations are not causal. The primary test finds a statistically significant 7.61-point repeat-rate difference by first-invoice spend; the customer-level average invoice-value comparison and UK/non-UK comparison do not detect statistically significant differences. Interpret confidence intervals and practical effect sizes alongside p-values.
+
+\textbf{Source:} Chen, D. (2015). \textit{Online Retail}. UCI Machine Learning Repository. \url{https://doi.org/10.24432/C5BW33}. CC BY 4.0.
+\end{document}
